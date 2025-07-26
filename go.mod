@@ -1,4 +1,4 @@
-module myproject
+module github.com/zhoudm1743/Netser
 
 go 1.23
 

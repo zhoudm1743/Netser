@@ -25,6 +25,8 @@ func main() {
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup:        app.startup,
+		OnShutdown:       app.shutdown, // 添加关闭处理函数
+		// 注册app实例及其所有方法
 		Bind: []interface{}{
 			app,
 		},
