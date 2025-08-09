@@ -4,43 +4,435 @@
     box-sizing: border-box;
 }
 
+/* CSS 变量定义 */
+:root {
+    /* 白天模式颜色 */
+    --bg-primary: rgba(240, 240, 240, 0.2);
+    --bg-glass: rgba(255, 255, 255, 0.7);
+    --bg-glass-light: rgba(255, 255, 255, 0.4);
+    --bg-glass-lighter: rgba(255, 255, 255, 0.3);
+    --bg-glass-lightest: rgba(255, 255, 255, 0.2);
+    --border-glass: rgba(255, 255, 255, 0.4);
+    --border-glass-light: rgba(255, 255, 255, 0.3);
+    --text-primary: #2c3e50;
+    --text-secondary: rgba(44, 62, 80, 0.6);
+    --text-placeholder: rgba(44, 62, 80, 0.5);
+    --shadow-glass: 0 4px 20px 0 rgba(0, 0, 0, 0.1);
+    --shadow-glass-light: 0 4px 16px 0 rgba(0, 0, 0, 0.1);
+    --overlay-bg: rgba(0, 0, 0, 0.2);
+    --scrollbar-thumb: rgba(0, 0, 0, 0.2);
+    --scrollbar-track: rgba(255, 255, 255, 0.2);
+}
+
+/* 黑夜模式颜色 */
+body.dark-mode {
+    --bg-primary: rgba(20, 20, 30, 0.8);
+    --bg-glass: rgba(40, 44, 52, 0.85);
+    --bg-glass-light: rgba(50, 54, 62, 0.7);
+    --bg-glass-lighter: rgba(60, 64, 72, 0.5);
+    --bg-glass-lightest: rgba(70, 74, 82, 0.4);
+    --border-glass: rgba(120, 120, 140, 0.4);
+    --border-glass-light: rgba(100, 100, 120, 0.3);
+    --text-primary: #f0f2f5;
+    --text-secondary: rgba(240, 242, 245, 0.8);
+    --text-placeholder: rgba(240, 242, 245, 0.6);
+    --shadow-glass: 0 4px 20px 0 rgba(0, 0, 0, 0.4);
+    --shadow-glass-light: 0 4px 16px 0 rgba(0, 0, 0, 0.3);
+    --overlay-bg: rgba(0, 0, 0, 0.6);
+    --scrollbar-thumb: rgba(140, 140, 160, 0.5);
+    --scrollbar-track: rgba(60, 64, 72, 0.4);
+}
+
 body {
-    background-color: rgba(240, 240, 240, 0.2);
+    background-color: var(--bg-primary);
     font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
-    color: #333;
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
-/* el按钮毛玻璃 */
 
+/* 毛玻璃效果基础类 */
+.glass-effect {
+    background-color: var(--bg-glass-lighter) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--border-glass-light) !important;
+    box-shadow: var(--shadow-glass-light) !important;
+}
+
+/* el按钮毛玻璃 */
 .el-button {
     background-color: transparent;
     border: none;
     box-shadow: none;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
 }
 
 .el-button:hover {
-    background-color: rgba(240, 240, 240, 0.2);
+    background-color: var(--bg-glass-lightest);
 }
 
 .el-button:active {
-    background-color: rgba(240, 240, 240, 0.2);
+    background-color: var(--bg-glass-lightest);
 }
+
+/* el卡片毛玻璃 */
 .el-card {
     box-shadow: none !important;
     border-radius: 10px;
-    // box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
     background-color: transparent !important;
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    border: 1px solid var(--border-glass-light);
+    transition: all 0.3s ease;
+    
     .el-card__header {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+        border-bottom: 1px solid var(--border-glass-light);
     }
     .el-card__body {
         padding: 10px;
     }
     .el-card__footer {
-        border-top: 1px solid rgba(255, 255, 255, 0.18);
+        border-top: 1px solid var(--border-glass-light);
+    }
+}
+
+/* 对话框毛玻璃效果 */
+.el-dialog {
+    background-color: var(--bg-glass) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--border-glass) !important;
+    box-shadow: var(--shadow-glass) !important;
+    border-radius: 12px !important;
+    transition: all 0.3s ease;
+    
+    .el-dialog__header {
+        background-color: transparent !important;
+        border-bottom: 1px solid var(--border-glass-light) !important;
+        
+        .el-dialog__title {
+            color: var(--text-primary) !important;
+            font-weight: 600;
+        }
+    }
+    
+    .el-dialog__body {
+        background-color: transparent !important;
+    }
+    
+    .el-dialog__footer {
+        background-color: transparent !important;
+        border-top: 1px solid var(--border-glass-light) !important;
+    }
+    
+    .el-dialog__headerbtn {
+        color: var(--text-secondary) !important;
+    }
+}
+
+/* 确认框(MessageBox)毛玻璃效果 */
+.el-message-box {
+    background-color: var(--bg-glass) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--border-glass) !important;
+    box-shadow: var(--shadow-glass) !important;
+    border-radius: 12px !important;
+    transition: all 0.3s ease;
+    
+    .el-message-box__header {
+        background-color: transparent !important;
+        border-bottom: 1px solid var(--border-glass-light) !important;
+    }
+    
+    .el-message-box__title {
+        color: var(--text-primary) !important;
+        font-weight: 600;
+    }
+    
+    .el-message-box__content {
+        background-color: transparent !important;
+        color: var(--text-primary) !important;
+    }
+    
+    .el-message-box__btns {
+        background-color: transparent !important;
+        border-top: 1px solid var(--border-glass-light) !important;
+    }
+}
+
+/* 输入框毛玻璃效果 */
+.el-input__wrapper {
+    background-color: var(--bg-glass-light) !important;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid var(--border-glass-light) !important;
+    box-shadow: none !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease;
+}
+
+.el-input__inner {
+    background-color: transparent !important;
+    color: var(--text-primary) !important;
+    font-weight: 500;
+}
+
+.el-input__inner::placeholder {
+    color: var(--text-placeholder) !important;
+}
+
+/* 选择器毛玻璃效果 */
+.el-select .el-input__wrapper {
+    background-color: var(--bg-glass-light) !important;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid var(--border-glass-light) !important;
+}
+
+/* 下拉菜单毛玻璃效果 */
+.el-select-dropdown {
+    background-color: var(--bg-glass) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--border-glass) !important;
+    box-shadow: var(--shadow-glass-light) !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease;
+}
+
+.el-select-dropdown__item {
+    background-color: transparent !important;
+    color: var(--text-primary) !important;
+}
+
+.el-select-dropdown__item:hover {
+    background-color: rgba(64, 158, 255, 0.1) !important;
+    color: #409eff !important;
+}
+
+.el-select-dropdown__item.selected {
+    color: #409eff !important;
+    background-color: rgba(64, 158, 255, 0.1) !important;
+}
+
+/* 下拉框菜单毛玻璃效果 */
+.el-dropdown-menu {
+    background-color: var(--bg-glass) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--border-glass) !important;
+    box-shadow: var(--shadow-glass-light) !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease;
+}
+
+.el-dropdown-menu__item {
+    background-color: transparent !important;
+    color: var(--text-primary) !important;
+}
+
+.el-dropdown-menu__item:hover {
+    background-color: rgba(64, 158, 255, 0.1) !important;
+    color: #409eff !important;
+}
+
+/* 滚动条毛玻璃效果 */
+.el-scrollbar__bar {
+    background-color: var(--scrollbar-track) !important;
+}
+
+.el-scrollbar__thumb {
+    background-color: var(--scrollbar-thumb) !important;
+    border-radius: 4px !important;
+}
+
+/* 数字输入框毛玻璃效果 */
+.el-input-number .el-input__wrapper {
+    background-color: var(--bg-glass-light) !important;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid var(--border-glass-light) !important;
+}
+
+.el-input-number__increase,
+.el-input-number__decrease {
+    background-color: var(--bg-glass-lighter) !important;
+    border-left: 1px solid var(--border-glass-light) !important;
+    color: var(--text-secondary) !important;
+}
+
+.el-input-number__increase:hover,
+.el-input-number__decrease:hover {
+    background-color: rgba(64, 158, 255, 0.1) !important;
+    color: #409eff !important;
+}
+
+/* 开关毛玻璃效果 */
+.el-switch {
+    .el-switch__core {
+        background-color: var(--bg-glass-lighter) !important;
+        border: 1px solid var(--border-glass-light) !important;
+    }
+    
+    &.is-checked .el-switch__core {
+        background-color: #409eff !important;
+        border-color: #409eff !important;
+    }
+}
+
+/* 标签毛玻璃效果 */
+.el-tag {
+    background-color: var(--bg-glass-lighter) !important;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid var(--border-glass-light) !important;
+    color: var(--text-primary) !important;
+    transition: all 0.3s ease;
+}
+
+.el-tag.el-tag--success {
+    background-color: rgba(103, 194, 58, 0.2) !important;
+    border-color: rgba(103, 194, 58, 0.3) !important;
+    color: #67c23a !important;
+}
+
+.el-tag.el-tag--warning {
+    background-color: rgba(230, 162, 60, 0.2) !important;
+    border-color: rgba(230, 162, 60, 0.3) !important;
+    color: #e6a23c !important;
+}
+
+.el-tag.el-tag--info {
+    background-color: rgba(144, 147, 153, 0.2) !important;
+    border-color: rgba(144, 147, 153, 0.3) !important;
+    color: #909399 !important;
+}
+
+/* 空状态毛玻璃效果 */
+.el-empty {
+    background-color: transparent !important;
+    
+    .el-empty__description {
+        color: var(--text-primary) !important;
+        font-weight: 500;
+        font-size: 16px;
+    }
+    
+    .el-empty__image {
+        opacity: 0.6;
+    }
+}
+
+/* 遮罩层效果 */
+.el-overlay {
+    background-color: var(--overlay-bg) !important;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+/* 表单毛玻璃效果 */
+.el-form-item__label {
+    color: var(--text-primary) !important;
+    font-weight: 500;
+}
+
+/* 消息提示毛玻璃效果 */
+.el-message {
+    background-color: var(--bg-glass) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--border-glass) !important;
+    box-shadow: var(--shadow-glass-light) !important;
+    border-radius: 8px !important;
+    color: var(--text-primary) !important;
+    transition: all 0.3s ease;
+}
+
+/* 通知毛玻璃效果 */
+.el-notification {
+    background-color: var(--bg-glass) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--border-glass) !important;
+    box-shadow: var(--shadow-glass-light) !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease;
+    
+    .el-notification__title {
+        color: var(--text-primary) !important;
+    }
+    
+    .el-notification__content {
+        color: var(--text-primary) !important;
+    }
+}
+
+/* 分隔线样式 */
+.el-divider {
+    border-color: var(--border-glass-light) !important;
+}
+
+/* 按钮组毛玻璃效果 */
+.el-button-group {
+    display: flex;
+    align-items: center;
+    height: 32px;
+    
+    .el-button {
+        background-color: var(--bg-glass-lightest) !important;
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        border: 1px solid var(--border-glass-light) !important;
+        transition: all 0.3s ease;
+        height: 32px;
+        min-height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        .el-icon {
+            font-size: 14px;
+        }
+    }
+    
+    .el-button:hover {
+        background-color: var(--bg-glass-lighter) !important;
+    }
+}
+
+/* 主要按钮样式优化 */
+.el-button--primary {
+    background-color: rgba(64, 158, 255, 0.8) !important;
+    border-color: rgba(64, 158, 255, 0.8) !important;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition: all 0.3s ease;
+}
+
+.el-button--primary:hover {
+    background-color: rgba(64, 158, 255, 0.9) !important;
+    border-color: rgba(64, 158, 255, 0.9) !important;
+}
+
+/* 主题切换开关特殊样式 */
+.theme-switch .el-switch {
+    .el-switch__core {
+        background-color: var(--bg-glass-light) !important;
+        border: 2px solid var(--border-glass) !important;
+        transition: all 0.3s ease;
+    }
+    
+    &.is-checked .el-switch__core {
+        background-color: #2c3e50 !important;
+        border-color: #2c3e50 !important;
+    }
+    
+    .el-switch__action {
+        background-color: #fff !important;
+        transition: all 0.3s ease;
     }
 }

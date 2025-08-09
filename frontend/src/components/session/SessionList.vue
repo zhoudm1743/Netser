@@ -273,6 +273,8 @@ const handleDeleteSession = async (session) => {
 .session-header h3 {
   margin: 0;
   font-size: 16px;
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
 .session-item {
@@ -287,11 +289,11 @@ const handleDeleteSession = async (session) => {
 }
 
 .session-item:hover {
-  background-color: #f5f7fa;
+  background-color: var(--bg-glass-lightest);
 }
 
 .session-active {
-  background-color: #ecf5ff;
+  background-color: rgba(64, 158, 255, 0.1);
 }
 
 .session-info {
@@ -301,6 +303,7 @@ const handleDeleteSession = async (session) => {
 .session-name {
   font-weight: bold;
   margin-bottom: 5px;
+  color: var(--text-primary);
 }
 
 .session-type, .session-status {
@@ -308,7 +311,7 @@ const handleDeleteSession = async (session) => {
 }
 
 .session-details {
-  color: #909399;
+  color: var(--text-secondary);
   font-size: 12px;
 }
 
