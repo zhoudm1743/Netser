@@ -535,13 +535,19 @@ watch(messages, (newMessages) => {
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  border-bottom: 1px solid #ebeef5;
+  background-color: var(--bg-glass-light);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-glass-light);
+  border-radius: 10px 10px 0 0;
+  transition: all 0.3s ease;
 }
 
 .session-info h3 {
   margin: 0 0 8px 0;
   font-size: 18px;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .session-details {
@@ -549,7 +555,7 @@ watch(messages, (newMessages) => {
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: #606266;
+  color: var(--text-secondary);
 }
 
 .connection-info {
@@ -566,7 +572,11 @@ watch(messages, (newMessages) => {
   display: flex;
   flex-direction: column;
   padding: 16px;
-  border-bottom: 1px solid #ebeef5;
+  background-color: var(--bg-glass-light);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-glass-light);
+  transition: all 0.3s ease;
 }
 
 .message-header {
@@ -575,6 +585,7 @@ watch(messages, (newMessages) => {
   align-items: center;
   margin-bottom: 12px;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .message-controls {
@@ -583,19 +594,26 @@ watch(messages, (newMessages) => {
 }
 
 .message-list {
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  background: #fafafa;
+  border: 1px solid var(--border-glass);
+  border-radius: 8px;
+  background-color: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  min-height: 200px;
 }
 
 .no-messages {
   padding: 40px;
   text-align: center;
+  color: var(--text-secondary);
 }
 
 .message-item {
   padding: 8px 12px;
-  border-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid var(--border-glass-light);
+  transition: all 0.3s ease;
 }
 
 .message-item:last-child {
@@ -603,15 +621,18 @@ watch(messages, (newMessages) => {
 }
 
 .message-item.send {
-  background-color: #f0f9ff;
+  background-color: rgba(64, 158, 255, 0.15);
+  border-left: 3px solid #409eff;
 }
 
 .message-item.receive {
-  background-color: #f6ffed;
+  background-color: rgba(103, 194, 58, 0.15);
+  border-left: 3px solid #67c23a;
 }
 
 .message-item.system {
-  background-color: #fffbe6;
+  background-color: rgba(230, 162, 60, 0.15);
+  border-left: 3px solid #e6a23c;
 }
 
 .message-header-line {
@@ -623,11 +644,11 @@ watch(messages, (newMessages) => {
 }
 
 .timestamp {
-  color: #909399;
+  color: var(--text-secondary);
 }
 
 .message-length {
-  color: #909399;
+  color: var(--text-secondary);
   margin-left: auto;
 }
 
@@ -635,6 +656,7 @@ watch(messages, (newMessages) => {
   font-family: 'Consolas', 'Monaco', monospace;
   font-size: 13px;
   line-height: 1.4;
+  color: var(--text-primary);
 }
 
 .message-content pre {
@@ -645,6 +667,12 @@ watch(messages, (newMessages) => {
 
 .send-area {
   padding: 16px;
+  background-color: var(--bg-glass-light);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-top: 1px solid var(--border-glass-light);
+  border-radius: 0 0 10px 10px;
+  transition: all 0.3s ease;
 }
 
 .send-header {
@@ -653,6 +681,7 @@ watch(messages, (newMessages) => {
   align-items: center;
   margin-bottom: 12px;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .send-controls {
@@ -677,7 +706,7 @@ watch(messages, (newMessages) => {
 }
 
 .quick-send {
-  border-top: 1px solid #ebeef5;
+  border-top: 1px solid var(--border-glass-light);
   padding-top: 16px;
 }
 
@@ -687,6 +716,7 @@ watch(messages, (newMessages) => {
   align-items: center;
   margin-bottom: 8px;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .template-list {
@@ -697,9 +727,10 @@ watch(messages, (newMessages) => {
 
 .template-tag {
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .template-tag:hover {
-  background-color: #ecf5ff;
+  background-color: rgba(64, 158, 255, 0.1);
 }
 </style>

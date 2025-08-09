@@ -418,6 +418,236 @@ body {
     border-color: rgba(64, 158, 255, 0.9) !important;
 }
 
+/* 文本域毛玻璃效果 */
+.el-textarea {
+    .el-textarea__inner {
+        background-color: var(--bg-glass) !important;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid var(--border-glass) !important;
+        box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1) !important;
+        border-radius: 8px !important;
+        transition: all 0.3s ease;
+        color: var(--text-primary) !important;
+        font-size: 14px;
+        line-height: 1.5;
+        
+        &::placeholder {
+            color: var(--text-placeholder) !important;
+        }
+        
+        &:focus {
+            border-color: #409eff !important;
+            box-shadow: 0 2px 12px 0 rgba(64, 158, 255, 0.2) !important;
+        }
+    }
+}
+
+/* 复选框毛玻璃效果 */
+.el-checkbox {
+    color: var(--text-primary) !important;
+    
+    .el-checkbox__input {
+        .el-checkbox__inner {
+            background-color: var(--bg-glass-lighter) !important;
+            border-color: var(--border-glass-light) !important;
+            transition: all 0.3s ease;
+        }
+        
+        &.is-checked .el-checkbox__inner {
+            background-color: #409eff !important;
+            border-color: #409eff !important;
+        }
+    }
+    
+    .el-checkbox__label {
+        color: var(--text-primary) !important;
+    }
+}
+
+/* 单选框毛玻璃效果 */
+.el-radio {
+    color: var(--text-primary) !important;
+    
+    .el-radio__input {
+        .el-radio__inner {
+            background-color: var(--bg-glass-lighter) !important;
+            border-color: var(--border-glass-light) !important;
+            transition: all 0.3s ease;
+        }
+        
+        &.is-checked .el-radio__inner {
+            background-color: #409eff !important;
+            border-color: #409eff !important;
+        }
+    }
+    
+    .el-radio__label {
+        color: var(--text-primary) !important;
+    }
+}
+
+/* 分页器毛玻璃效果 */
+.el-pagination {
+    color: var(--text-primary) !important;
+    
+    .el-pager li {
+        background-color: var(--bg-glass-lighter) !important;
+        color: var(--text-primary) !important;
+        border: 1px solid var(--border-glass-light) !important;
+        transition: all 0.3s ease;
+    }
+    
+    .el-pager li:hover {
+        background-color: rgba(64, 158, 255, 0.1) !important;
+    }
+    
+    .el-pager li.active {
+        background-color: #409eff !important;
+        color: #fff !important;
+    }
+    
+    button {
+        background-color: var(--bg-glass-lighter) !important;
+        color: var(--text-primary) !important;
+        border: 1px solid var(--border-glass-light) !important;
+    }
+    
+    button:hover {
+        background-color: rgba(64, 158, 255, 0.1) !important;
+    }
+}
+
+/* 步骤条毛玻璃效果 */
+.el-steps {
+    .el-step__head {
+        .el-step__icon {
+            background-color: var(--bg-glass-lighter) !important;
+            border-color: var(--border-glass-light) !important;
+            color: var(--text-primary) !important;
+        }
+        
+        &.is-finish .el-step__icon {
+            background-color: #409eff !important;
+            border-color: #409eff !important;
+            color: #fff !important;
+        }
+        
+        &.is-process .el-step__icon {
+            background-color: #409eff !important;
+            border-color: #409eff !important;
+            color: #fff !important;
+        }
+    }
+    
+    .el-step__title {
+        color: var(--text-primary) !important;
+    }
+    
+    .el-step__description {
+        color: var(--text-secondary) !important;
+    }
+}
+
+/* 面包屑毛玻璃效果 */
+.el-breadcrumb {
+    .el-breadcrumb__item {
+        .el-breadcrumb__inner {
+            color: var(--text-primary) !important;
+        }
+        
+        &:last-child .el-breadcrumb__inner {
+            color: var(--text-secondary) !important;
+        }
+    }
+    
+    .el-breadcrumb__separator {
+        color: var(--text-secondary) !important;
+    }
+}
+
+/* 进度条毛玻璃效果 */
+.el-progress {
+    .el-progress__text {
+        color: var(--text-primary) !important;
+    }
+    
+    .el-progress-bar__outer {
+        background-color: var(--bg-glass-lighter) !important;
+        border: 1px solid var(--border-glass-light) !important;
+    }
+}
+
+/* 加载图标毛玻璃效果 */
+.el-loading-mask {
+    background-color: var(--overlay-bg) !important;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+.el-loading-spinner {
+    .el-loading-text {
+        color: var(--text-primary) !important;
+    }
+}
+
+/* 树形控件毛玻璃效果 */
+.el-tree {
+    background-color: transparent !important;
+    color: var(--text-primary) !important;
+    
+    .el-tree-node__content {
+        color: var(--text-primary) !important;
+        transition: all 0.3s ease;
+        
+        &:hover {
+            background-color: var(--bg-glass-lightest) !important;
+        }
+    }
+    
+    .el-tree-node__expand-icon {
+        color: var(--text-secondary) !important;
+    }
+}
+
+/* 表格毛玻璃效果 */
+.el-table {
+    background-color: transparent !important;
+    color: var(--text-primary) !important;
+    
+    .el-table__header {
+        background-color: var(--bg-glass-lighter) !important;
+        
+        th {
+            background-color: transparent !important;
+            color: var(--text-primary) !important;
+            border-bottom: 1px solid var(--border-glass-light) !important;
+        }
+    }
+    
+    .el-table__body {
+        tr {
+            background-color: transparent !important;
+            
+            &:hover {
+                background-color: var(--bg-glass-lightest) !important;
+            }
+            
+            td {
+                border-bottom: 1px solid var(--border-glass-light) !important;
+                color: var(--text-primary) !important;
+            }
+        }
+    }
+    
+    .el-table__border::after,
+    .el-table__border::before,
+    .el-table__border-left,
+    .el-table__border-right {
+        background-color: var(--border-glass-light) !important;
+    }
+}
+
 /* 主题切换开关特殊样式 */
 .theme-switch .el-switch {
     .el-switch__core {
