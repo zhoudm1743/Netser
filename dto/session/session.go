@@ -21,6 +21,13 @@ type SessionInfo struct {
 	Protocol    string `json:"protocol"`    // 协议类型
 	IsHex       bool   `json:"isHex"`       // 是否使用十六进制模式
 	ConnectTime int64  `json:"connectTime"` // 连接时间
+
+	// 串口相关字段
+	SerialPort string `json:"serialPort"` // 串口名称 (例如: "COM1", "/dev/ttyUSB0")
+	BaudRate   int    `json:"baudRate"`   // 波特率
+	DataBits   int    `json:"dataBits"`   // 数据位
+	StopBits   int    `json:"stopBits"`   // 停止位
+	Parity     string `json:"parity"`     // 奇偶校验: "none", "odd", "even"
 }
 
 // SessionRemoveRequest 移除会话请求

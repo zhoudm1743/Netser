@@ -1,19 +1,34 @@
 <script setup>
 import { BaseRequest, BaseResponse } from './dto/base'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { Greet } from '../wailsjs/go/main/App'
 import SessionList from './components/session/SessionList.vue'
 import SessionView from './components/session/SessionView.vue'
+import { useSessionStore } from './stores/session'
 
 const version = ref('')
-const selectedSession = ref(null)
+const sessionStore = useSessionStore()
+
+// 应用启动时初始化
+onMounted(async () => {
+  // 先初始化WebSocket连接
+  await sessionStore.initWebSocket()
+  // 然后加载会话列表
+  await sessionStore.loadSessions()
+})
 
 const getVersion = () => {
+  console.log('=== 测试getVersion ===')
   const request = new BaseRequest('get_version', {})
+  console.log('发送请求:', request.toJson())
   Greet(request.toJson()).then(response => {
+    console.log('收到响应:', response)
     const baseResponse = BaseResponse.fromJson(response)
+    console.log('解析后响应:', baseResponse)
     version.value = baseResponse.data
-    console.log(response)
+    console.log('版本设置为:', version.value)
+  }).catch(error => {
+    console.error('请求失败:', error)
   })
 }
 
@@ -41,40 +56,16 @@ const close = () => {
   })
 }
 
-const handleSessionSelect = (session) => {
-  console.log('选中会话:', session)
-  selectedSession.value = session
-}
 
-const handleSessionConnect = (session) => {
-  console.log('连接会话:', session)
-  // 在这里可以更新会话状态
-  if (selectedSession.value && selectedSession.value.sessionId === session.sessionId) {
-    selectedSession.value.status = 'connecting'
-  }
-}
-
-const handleSessionDisconnect = (session) => {
-  console.log('断开会话:', session)
-  // 在这里可以更新会话状态
-  if (selectedSession.value && selectedSession.value.sessionId === session.sessionId) {
-    selectedSession.value.status = 'disconnected'
-  }
-}
-
-const handleSessionDelete = (session) => {
-  console.log('删除会话:', session)
-  // 如果删除的是当前选中的会话，清空选中状态
-  if (selectedSession.value && selectedSession.value.sessionId === session.sessionId) {
-    selectedSession.value = null
-  }
-}
 </script>
 
 <template>
   <div class="container">
     <header>
-      <h3>Netser</h3>
+      <h3>Netser {{ version }}</h3>
+      <div class="test-area">
+        <el-button @click="getVersion" size="small">测试连接</el-button>
+      </div>
       <div class="control">
         <el-button-group>
         <el-button @click="minimize">
@@ -92,17 +83,12 @@ const handleSessionDelete = (session) => {
     <div class="content">
       <div class="content-left">
         <el-card style="max-width: 300px;height: 100%;">
-          <session-list 
-            @select="handleSessionSelect"
-            @connect="handleSessionConnect"
-            @disconnect="handleSessionDisconnect"
-            @delete="handleSessionDelete"
-          />
+          <SessionList />
         </el-card>
       </div>
       <div class="content-right">
         <el-card style="width: 100%;height: 100%;">
-          <session-view :selected-session="selectedSession" />
+          <SessionView />
         </el-card>
       </div>
     </div>

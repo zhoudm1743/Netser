@@ -1,7 +1,7 @@
 <template>
   <div class="session-list">
     <div class="session-header">
-      <h3>会话列表</h3>
+      <h3>会话列表 ({{ sessions.length }})</h3>
       <div class="session-actions">
         <el-button type="primary" size="small" @click="handleAddSession">
           <el-icon><Plus /></el-icon> 添加
@@ -31,7 +31,7 @@
           <div class="session-status">
             <el-tag 
               size="small" 
-              :type="session.status === 'connected' ? 'success' : 
+              :type="session.status === 'connected' || session.status === 'listening' ? 'success' : 
                     (session.status === 'connecting' ? 'warning' : 'info')"
             >
               {{ getStatusLabel(session.status) }}
@@ -49,7 +49,7 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item :disabled="isSessionBusy(session)" command="connect">
-                  {{ session.status === 'connected' ? '断开连接' : '连接' }}
+                  {{ session.status === 'connected' || session.status === 'listening' ? '断开连接' : '连接' }}
                 </el-dropdown-item>
                 <el-dropdown-item command="edit">编辑</el-dropdown-item>
                 <el-dropdown-item command="rename">重命名</el-dropdown-item>
@@ -62,7 +62,7 @@
     </el-scrollbar>
     
     <!-- 会话表单对话框 -->
-    <session-dialog
+    <SessionDialog
       v-model:visible="dialogVisible"
       :session-data="currentSession"
       :is-edit="isEdit"
@@ -87,25 +87,17 @@
 </template>
 
 <script setup>
-import { ref, defineEmits } from 'vue'
+import { ref, computed } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import SessionDialog from './SessionDialog.vue'
+import { useSessionStore } from '../../stores/session'
 
-const emit = defineEmits(['select', 'connect', 'disconnect', 'delete'])
+// 使用会话store
+const sessionStore = useSessionStore()
 
-// 会话列表数据
-const sessions = ref([
-  // 示例数据，实际使用时应从后端获取
-  // {
-  //   sessionId: '1',
-  //   name: 'TCP服务端示例',
-  //   type: 'tcpServer',
-  //   status: 'disconnected',
-  //   port: 8080,
-  //   isHex: false
-  // }
-])
-
-const activeSessionId = ref('')
+// 从store获取状态
+const sessions = computed(() => sessionStore.sessions)
+const activeSessionId = computed(() => sessionStore.selectedSessionId)
 const dialogVisible = ref(false)
 const renameDialogVisible = ref(false)
 const isEdit = ref(false)
@@ -175,8 +167,9 @@ const isSessionBusy = (session) => {
 
 // 选择会话
 const handleSessionSelect = (session) => {
-  activeSessionId.value = session.sessionId
-  emit('select', session)
+  console.log('=== SessionList 选择会话 ===')
+  console.log('点击的会话:', session)
+  sessionStore.selectSession(session)
 }
 
 // 添加会话
@@ -191,9 +184,9 @@ const handleCommand = (command, session) => {
   switch (command) {
     case 'connect':
       if (session.status === 'connected' || session.status === 'listening') {
-        emit('disconnect', session)
+        sessionStore.disconnectSession(session)
       } else {
-        emit('connect', session)
+        sessionStore.connectSession(session)
       }
       break
     case 'edit':
@@ -212,78 +205,54 @@ const handleCommand = (command, session) => {
   }
 }
 
+
+
 // 处理表单对话框提交
-const handleDialogSubmit = (formData) => {
+const handleDialogSubmit = async (formData) => {
   if (isEdit.value) {
-    // 编辑现有会话
-    const index = sessions.value.findIndex(s => s.sessionId === formData.sessionId)
-    if (index !== -1) {
-      sessions.value[index] = { ...formData }
-    }
+    // 编辑现有会话 - 暂时不支持，未来可扩展
+    ElMessage.warning('编辑会话功能暂未实现')
   } else {
     // 添加新会话
-    const newSession = {
-      ...formData,
-      sessionId: `session_${Date.now()}`,
-      status: 'disconnected'
-    }
-    sessions.value.push(newSession)
-    activeSessionId.value = newSession.sessionId
-    emit('select', newSession)
+    await sessionStore.createSession(formData)
   }
+  
+  dialogVisible.value = false
 }
 
 // 确认重命名
 const handleRenameConfirm = () => {
-  if (currentSession.value && newSessionName.value) {
-    const index = sessions.value.findIndex(s => s.sessionId === currentSession.value.sessionId)
-    if (index !== -1) {
-      sessions.value[index].name = newSessionName.value
-    }
-  }
+  // TODO: 实现重命名功能，需要后端API支持
+  ElMessage.warning('重命名功能暂未实现')
   renameDialogVisible.value = false
 }
 
 // 删除会话
-const handleDeleteSession = (session) => {
+const handleDeleteSession = async (session) => {
   // 确认删除
-  ElMessageBox.confirm(
-    `确定要删除会话 "${session.name || session.sessionId}" 吗？`,
-    '删除会话',
-    {
-      confirmButtonText: '确认',
-      cancelButtonText: '取消',
-      type: 'warning'
+  try {
+    await ElMessageBox.confirm(
+      `确定要删除会话 "${session.name || session.sessionId}" 吗？`,
+      '删除会话',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+
+    // 调用store删除会话
+    await sessionStore.removeSession(session.sessionId)
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('删除会话失败:', error)
     }
-  ).then(() => {
-    emit('delete', session)
-    const index = sessions.value.findIndex(s => s.sessionId === session.sessionId)
-    if (index !== -1) {
-      sessions.value.splice(index, 1)
-    }
-    if (activeSessionId.value === session.sessionId) {
-      activeSessionId.value = sessions.value.length > 0 ? sessions.value[0].sessionId : ''
-    }
-  }).catch(() => {
-    // 取消删除
-  })
+  }
 }
 
-// 提供方法给外部调用
-defineExpose({
-  updateSessionStatus: (sessionId, status) => {
-    const index = sessions.value.findIndex(s => s.sessionId === sessionId)
-    if (index !== -1) {
-      sessions.value[index].status = status
-    }
-  },
-  updateSessions: (newSessions) => {
-    sessions.value = newSessions
-  },
-  addSession: (session) => {
-    sessions.value.push(session)
-  }
-})
+
+
+
 </script>
 
 <style scoped>

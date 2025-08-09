@@ -7,6 +7,7 @@
 
     <!-- 选中会话时的主视图 -->
     <div v-else class="session-content">
+
       <!-- 会话信息头部 -->
       <div class="session-header">
         <div class="session-info">
@@ -33,6 +34,10 @@
             @click="handleConnectionToggle"
           >
             {{ isConnected ? '断开连接' : (isConnecting ? '连接中...' : '连接') }}
+            <!-- 临时调试信息 -->
+            <span style="font-size: 10px; margin-left: 5px;">
+              ({{ selectedSession?.status }})
+            </span>
           </el-button>
           <el-button @click="handleClearMessages" :disabled="messages.length === 0">
             <el-icon><Delete /></el-icon> 清空消息
@@ -51,7 +56,7 @@
           </div>
         </div>
         
-        <el-scrollbar ref="messageScrollbar" class="message-list" height="400px">
+        <el-scrollbar ref="messageScrollbar" class="message-list" height="300px">
           <div v-if="messages.length === 0" class="no-messages">
             <el-empty description="暂无消息记录" />
           </div>
@@ -113,7 +118,7 @@
         </div>
 
         <!-- 快速发送模板 -->
-        <div class="quick-send">
+        <!-- <div class="quick-send">
           <div class="quick-send-header">
             <span>快速发送</span>
             <el-button size="small" type="text" @click="showTemplateDialog = true">
@@ -132,7 +137,7 @@
               {{ template.name }}
             </el-tag>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
 
@@ -169,19 +174,20 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, nextTick, defineProps } from 'vue'
+import { ref, reactive, computed, watch, nextTick } from 'vue'
+import { ElMessage } from 'element-plus'
 import { BaseRequest, BaseResponse } from '../../dto/base'
 import { Greet } from '../../../wailsjs/go/main/App'
+import { useSessionStore } from '../../stores/session'
 
-const props = defineProps({
-  selectedSession: {
-    type: Object,
-    default: null
-  }
-})
+// 使用会话store
+const sessionStore = useSessionStore()
 
-// 响应式数据
-const messages = ref([])
+// 从store获取选中的会话
+const selectedSession = computed(() => sessionStore.selectedSession)
+
+// 响应式数据 - 使用store中的消息记录
+const messages = computed(() => sessionStore.messages)
 const sendData = ref('')
 const autoScroll = ref(true)
 const showTimestamp = ref(true)
@@ -205,12 +211,12 @@ const templateForm = reactive({
 
 // 计算属性
 const isConnected = computed(() => {
-  return props.selectedSession && 
-    (props.selectedSession.status === 'connected' || props.selectedSession.status === 'listening')
+  return selectedSession.value && 
+    (selectedSession.value.status === 'connected' || selectedSession.value.status === 'listening')
 })
 
 const isConnecting = computed(() => {
-  return props.selectedSession && props.selectedSession.status === 'connecting'
+  return selectedSession.value && selectedSession.value.status === 'connecting'
 })
 
 // 获取连接类型标签类型
@@ -287,23 +293,34 @@ const formatMessageData = (data) => {
 
 // 处理连接切换
 const handleConnectionToggle = async () => {
-  if (!props.selectedSession) return
+  console.log('handleConnectionToggle 被调用')
+  console.log('selectedSession:', selectedSession.value)
+  
+  if (!selectedSession.value) {
+    console.log('selectedSession 为空，退出')
+    return
+  }
+  
+  if (!selectedSession.value.sessionId) {
+    console.log('sessionId 为空，退出')
+    return
+  }
 
   try {
     const action = isConnected.value ? 'disconnect' : 'connect'
-    const request = new BaseRequest(action, {
-      sessionId: props.selectedSession.sessionId,
-      sessionData: props.selectedSession
-    })
-
-    const response = await Greet(request.toJson())
-    const baseResponse = BaseResponse.fromJson(response)
+    console.log('执行动作:', action)
     
-    if (baseResponse.code === 0) {
-      // 连接状态改变，添加系统消息
-      addSystemMessage(`${action === 'connect' ? '连接' : '断开连接'}${baseResponse.message ? ': ' + baseResponse.message : '成功'}`)
+    // 使用store的连接/断开方法
+    if (action === 'connect') {
+      const success = await sessionStore.connectSession(selectedSession.value)
+      if (success) {
+        addSystemMessage('连接成功')
+      }
     } else {
-      ElMessage.error(baseResponse.message || '操作失败')
+      const success = await sessionStore.disconnectSession(selectedSession.value)
+      if (success) {
+        addSystemMessage('断开连接成功')
+      }
     }
   } catch (error) {
     console.error('连接操作失败:', error)
@@ -313,7 +330,7 @@ const handleConnectionToggle = async () => {
 
 // 发送数据
 const handleSendData = async () => {
-  if (!isConnected.value || !sendData.value.trim()) return
+  if (!isConnected.value || !sendData.value.trim() || !selectedSession.value?.sessionId) return
 
   try {
     let dataToSend = sendData.value
@@ -336,17 +353,23 @@ const handleSendData = async () => {
     }
 
     const request = new BaseRequest('send_data', {
-      sessionId: props.selectedSession.sessionId,
-      data: dataToSend
+      sessionId: selectedSession.value.sessionId,
+      data: dataToSend,
+      isHex: sendAsHex.value
     })
 
     const response = await Greet(request.toJson())
     const baseResponse = BaseResponse.fromJson(response)
     
     if (baseResponse.code === 0) {
-      // 添加发送消息记录
-      addMessage('send', dataToSend)
+      // 数据发送成功，清空输入框
       sendData.value = ''
+      
+      // 立即刷新消息列表（在WebSocket修复前的临时方案）
+      await sessionStore.loadSessionMessages(selectedSession.value.sessionId)
+      
+      // 自动滚动到底部
+      scrollToBottom()
     } else {
       ElMessage.error(baseResponse.message || '发送失败')
     }
@@ -362,8 +385,27 @@ const handleClearSendData = () => {
 }
 
 // 清空消息
-const handleClearMessages = () => {
-  messages.value = []
+const handleClearMessages = async () => {
+  if (!selectedSession.value || !selectedSession.value.sessionId) return
+
+  try {
+    const request = new BaseRequest('clear_session_messages', {
+      sessionId: selectedSession.value.sessionId
+    })
+
+    const response = await Greet(request.toJson())
+    const baseResponse = BaseResponse.fromJson(response)
+    
+    if (baseResponse.code === 0) {
+      sessionStore.clearMessages()
+      ElMessage.success('消息记录已清空')
+    } else {
+      ElMessage.error(baseResponse.message || '清空失败')
+    }
+  } catch (error) {
+    console.error('清空消息失败:', error)
+    ElMessage.error('清空消息失败')
+  }
 }
 
 // 添加消息
@@ -426,8 +468,20 @@ const handleRemoveTemplate = (index) => {
   sendTemplates.value.splice(index, 1)
 }
 
+// 刷新会话状态
+const refreshSessionStatus = async () => {
+  if (!selectedSession.value?.sessionId) return
+  
+  try {
+    // 重新加载会话列表，store会自动更新状态
+    await sessionStore.loadSessions()
+  } catch (error) {
+    console.error('刷新会话状态失败:', error)
+  }
+}
+
 // 监听选中会话变化
-watch(() => props.selectedSession, (newSession, oldSession) => {
+watch(() => selectedSession.value, (newSession, oldSession) => {
   if (newSession && newSession.sessionId !== oldSession?.sessionId) {
     // 切换会话时清空消息
     messages.value = []
@@ -435,17 +489,25 @@ watch(() => props.selectedSession, (newSession, oldSession) => {
   }
 })
 
-// 模拟接收数据（实际应用中应该通过WebSocket或其他方式接收）
-const simulateReceiveData = () => {
-  if (isConnected.value && Math.random() > 0.7) {
-    const sampleData = ['OK', 'ERROR', 'Data received', '48656C6C6F']
-    const randomData = sampleData[Math.floor(Math.random() * sampleData.length)]
-    addMessage('receive', randomData)
+// 自动滚动到消息底部
+const scrollToBottom = () => {
+  if (autoScroll.value) {
+    nextTick(() => {
+      if (messageScrollbar.value) {
+        messageScrollbar.value.setScrollTop(messageScrollbar.value.wrapRef.scrollHeight)
+      }
+    })
   }
 }
 
-// 定期模拟接收数据（仅用于演示）
-setInterval(simulateReceiveData, 5000)
+// 监听消息变化，自动滚动到底部
+watch(messages, (newMessages) => {
+  if (newMessages.length > 0) {
+    scrollToBottom()
+  }
+}, { deep: true })
+
+// 会话切换和消息加载现在由store统一处理
 </script>
 
 <style scoped>

@@ -29,7 +29,7 @@ func Success(args ...any) string {
 	if len(args) > 2 {
 		code = args[2].(int)
 	} else {
-		code = 1
+		code = 0 // 成功状态码应该是0
 	}
 
 	resp := BaseResponse{

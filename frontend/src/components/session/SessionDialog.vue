@@ -103,6 +103,8 @@
 
 <script setup>
 import { ref, reactive, defineEmits, defineProps, watch } from 'vue'
+import { BaseRequest, BaseResponse } from '../../dto/base'
+import { Greet } from '../../../wailsjs/go/main/App'
 
 const props = defineProps({
   visible: Boolean,
@@ -226,14 +228,35 @@ const handleSubmit = async () => {
   }
 }
 
-// 加载串口列表（实际应用中需要从后端获取）
+// 加载串口列表
 const loadSerialPorts = async () => {
-  // 模拟串口列表，实际应用中应该从后端获取
-  serialPorts.value = [
-    { path: 'COM1' },
-    { path: 'COM2' },
-    { path: 'COM3' }
-  ]
+  try {
+    console.log('正在获取串口列表...')
+    const request = new BaseRequest('get_serial_ports', {})
+    const response = await Greet(request.toJson())
+    const baseResponse = BaseResponse.fromJson(response)
+    
+    if (baseResponse.code === 0 && baseResponse.data && baseResponse.data.ports) {
+      serialPorts.value = baseResponse.data.ports.map(port => ({ path: port }))
+      console.log('获取到串口列表:', serialPorts.value)
+    } else {
+      console.error('获取串口列表失败:', baseResponse.message)
+      // 如果获取失败，使用默认列表
+      serialPorts.value = [
+        { path: 'COM1' },
+        { path: 'COM2' },
+        { path: 'COM3' }
+      ]
+    }
+  } catch (error) {
+    console.error('获取串口列表异常:', error)
+    // 如果发生异常，使用默认列表
+    serialPorts.value = [
+      { path: 'COM1' },
+      { path: 'COM2' },
+      { path: 'COM3' }
+    ]
+  }
 }
 
 // 组件挂载时加载串口列表
