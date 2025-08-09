@@ -2,7 +2,11 @@
 import { BaseRequest, BaseResponse } from './dto/base'
 import { ref } from 'vue'
 import { Greet } from '../wailsjs/go/main/App'
+import SessionList from './components/session/SessionList.vue'
+import SessionView from './components/session/SessionView.vue'
+
 const version = ref('')
+const selectedSession = ref(null)
 
 const getVersion = () => {
   const request = new BaseRequest('get_version', {})
@@ -36,6 +40,35 @@ const close = () => {
     console.log(response)
   })
 }
+
+const handleSessionSelect = (session) => {
+  console.log('选中会话:', session)
+  selectedSession.value = session
+}
+
+const handleSessionConnect = (session) => {
+  console.log('连接会话:', session)
+  // 在这里可以更新会话状态
+  if (selectedSession.value && selectedSession.value.sessionId === session.sessionId) {
+    selectedSession.value.status = 'connecting'
+  }
+}
+
+const handleSessionDisconnect = (session) => {
+  console.log('断开会话:', session)
+  // 在这里可以更新会话状态
+  if (selectedSession.value && selectedSession.value.sessionId === session.sessionId) {
+    selectedSession.value.status = 'disconnected'
+  }
+}
+
+const handleSessionDelete = (session) => {
+  console.log('删除会话:', session)
+  // 如果删除的是当前选中的会话，清空选中状态
+  if (selectedSession.value && selectedSession.value.sessionId === session.sessionId) {
+    selectedSession.value = null
+  }
+}
 </script>
 
 <template>
@@ -59,17 +92,17 @@ const close = () => {
     <div class="content">
       <div class="content-left">
         <el-card style="max-width: 300px;height: 100%;">
-    <template #header>
-      <div class="card-header">
-        <span>会话列表</span>
-      </div>
-    </template>
-    <p v-for="o in 4" :key="o" class="text item">{{ 'List item ' + o }}</p>
-  </el-card>
+          <session-list 
+            @select="handleSessionSelect"
+            @connect="handleSessionConnect"
+            @disconnect="handleSessionDisconnect"
+            @delete="handleSessionDelete"
+          />
+        </el-card>
       </div>
       <div class="content-right">
         <el-card style="width: 100%;height: 100%;">
-          <router-view />
+          <session-view :selected-session="selectedSession" />
         </el-card>
       </div>
     </div>
