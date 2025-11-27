@@ -9,23 +9,21 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         platform:
           - os: windows-latest
             target: windows/amd64
             name: netser-windows-amd64.exe
-          - os: windows-latest
-            target: windows/arm64
-            name: netser-windows-arm64.exe
+            archive: zip
           - os: ubuntu-latest
             target: linux/amd64
             name: netser-linux-amd64
-          - os: ubuntu-latest
-            target: linux/arm64
-            name: netser-linux-arm64
+            archive: tar.gz
           - os: macos-latest
             target: darwin/universal
             name: Netser.app
+            archive: zip
     
     runs-on: ${{ matrix.platform.os }}
     
@@ -50,7 +48,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev
+          sudo apt-get install -y build-essential pkg-config libgtk-3-dev libwebkit2gtk-4.0-dev
       
       - name: Install frontend dependencies
         run: |
@@ -58,25 +56,24 @@ jobs:
           npm install
       
       - name: Build application
-        run: wails build -platform ${{ matrix.platform.target }} -o ${{ matrix.platform.name }}
+        run: wails build -platform ${{ matrix.platform.target }}
       
-      - name: Create archive (Windows)
-        if: runner.os == 'Windows'
+      - name: Create archive (Windows/macOS)
+        if: matrix.platform.archive == 'zip'
         run: |
           cd build/bin
-          Compress-Archive -Path ${{ matrix.platform.name }} -DestinationPath ${{ matrix.platform.name }}.zip
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            powershell Compress-Archive -Path ${{ matrix.platform.name }} -DestinationPath ${{ matrix.platform.name }}.zip
+          else
+            ditto -c -k --keepParent ${{ matrix.platform.name }} ${{ matrix.platform.name }}.zip
+          fi
+        shell: bash
       
       - name: Create archive (Linux)
-        if: runner.os == 'Linux'
+        if: matrix.platform.archive == 'tar.gz'
         run: |
           cd build/bin
           tar -czf ${{ matrix.platform.name }}.tar.gz ${{ matrix.platform.name }}
-      
-      - name: Create archive (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          cd build/bin
-          ditto -c -k --keepParent ${{ matrix.platform.name }} ${{ matrix.platform.name }}.zip
       
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -110,20 +107,21 @@ jobs:
             ## Netser ${{ github.ref_name }} 发布
             
             ### 支持的平台
-            - ✅ Windows (amd64, arm64)
-            - ✅ Linux (amd64, arm64)
+            - ✅ Windows x64
+            - ✅ Linux x64
             - ✅ macOS (Universal - Intel & Apple Silicon)
             
             ### 下载说明
-            - Windows 用户：下载 `netser-windows-amd64.exe.zip` 并解压运行
-            - Linux 用户：下载 `netser-linux-amd64.tar.gz`，解压后执行 `chmod +x` 添加权限
-            - macOS 用户：下载 `Netser.app.zip`，解压后拖到应用程序文件夹
+            - **Windows 用户**：下载 `netser-windows-amd64.exe.zip`，解压后双击运行
+            - **Linux 用户**：下载 `netser-linux-amd64.tar.gz`，解压后执行 `chmod +x netser-linux-amd64 && ./netser-linux-amd64`
+            - **macOS 用户**：下载 `Netser.app.zip`，解压后拖到应用程序文件夹，首次运行可能需要在系统设置中允许
             
             ### 功能特性
-            - TCP 客户端/服务端通信
-            - 串口设备通信支持
-            - 消息持久化存储
-            - 实时数据传输
-            - 十六进制数据支持
+            - 🌐 TCP 客户端/服务端通信
+            - 🔌 串口设备通信支持
+            - 💾 消息持久化存储
+            - ⚡ 实时数据传输
+            - 🔢 十六进制数据支持
+            - 🎨 现代化 UI 设计
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

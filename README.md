@@ -4,6 +4,12 @@
 
 一个现代化的网络通信调试工具，基于 [Wails](https://wails.io/) 框架开发，支持 TCP 和串口通信。
 
+## 程序图片
+
+![主页](static/main.png)
+![添加](static/new.png)
+![连接](static/session.png)
+
 ## ✨ 功能特性
 
 ### 🌐 网络通信
