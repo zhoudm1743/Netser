@@ -64,6 +64,13 @@ jobs:
           fi
         shell: bash
       
+      - name: List build output
+        run: |
+          echo "=== Build directory contents ==="
+          ls -la build/bin/ || echo "build/bin not found"
+          find build -type f -name "${{ matrix.platform.name }}*" || echo "No matching files found"
+        shell: bash
+      
       - name: Create archive (Windows/macOS)
         if: matrix.platform.archive == 'zip'
         run: |
@@ -79,6 +86,7 @@ jobs:
         if: matrix.platform.archive == 'tar.gz'
         run: |
           cd build/bin
+          ls -la
           tar -czf ${{ matrix.platform.name }}.tar.gz ${{ matrix.platform.name }}
       
       - name: Upload artifacts
