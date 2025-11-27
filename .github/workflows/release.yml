@@ -59,6 +59,8 @@ jobs:
         run: |
           if [ "${{ runner.os }}" == "Linux" ]; then
             wails build -platform ${{ matrix.platform.target }} -tags webkit2_41 -o ${{ matrix.platform.name }}
+          elif [ "${{ runner.os }}" == "macOS" ]; then
+            wails build -platform ${{ matrix.platform.target }}
           else
             wails build -platform ${{ matrix.platform.target }} -o ${{ matrix.platform.name }}
           fi
