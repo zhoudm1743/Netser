@@ -58,17 +58,16 @@ jobs:
       - name: Build application
         run: |
           if [ "${{ runner.os }}" == "Linux" ]; then
-            wails build -platform ${{ matrix.platform.target }} -tags webkit2_41
+            wails build -platform ${{ matrix.platform.target }} -tags webkit2_41 -o ${{ matrix.platform.name }}
           else
-            wails build -platform ${{ matrix.platform.target }}
+            wails build -platform ${{ matrix.platform.target }} -o ${{ matrix.platform.name }}
           fi
         shell: bash
       
       - name: List build output
         run: |
           echo "=== Build directory contents ==="
-          ls -la build/bin/ || echo "build/bin not found"
-          find build -type f -name "${{ matrix.platform.name }}*" || echo "No matching files found"
+          ls -laR build/bin/ || echo "build/bin not found"
         shell: bash
       
       - name: Create archive (Windows/macOS)
