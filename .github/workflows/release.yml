@@ -94,7 +94,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ runner.os }}-${{ matrix.platform.target }}
+          name: ${{ matrix.platform.name }}
           path: build/bin/*.${{ matrix.platform.archive }}
   
   release:
