@@ -72,30 +72,30 @@ jobs:
           ls -laR build/bin/ || echo "build/bin not found"
         shell: bash
       
-      - name: Create archive (Windows/macOS)
-        if: matrix.platform.archive == 'zip'
+      - name: Create archive (Windows)
+        if: runner.os == 'Windows'
         run: |
           cd build/bin
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            powershell Compress-Archive -Path ${{ matrix.platform.name }} -DestinationPath ${{ matrix.platform.name }}.zip
-          else
-            ditto -c -k --keepParent ${{ matrix.platform.name }} ${{ matrix.platform.name }}.zip
-          fi
-        shell: bash
+          Compress-Archive -Path ${{ matrix.platform.name }} -DestinationPath ${{ matrix.platform.name }}.zip
+        shell: pwsh
       
       - name: Create archive (Linux)
-        if: matrix.platform.archive == 'tar.gz'
+        if: runner.os == 'Linux'
         run: |
           cd build/bin
-          ls -la
           tar -czf ${{ matrix.platform.name }}.tar.gz ${{ matrix.platform.name }}
+      
+      - name: Create archive (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          cd build/bin
+          ditto -c -k --keepParent ${{ matrix.platform.name }} ${{ matrix.platform.name }}.zip
       
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.platform.name }}
-          path: |
-            build/bin/${{ matrix.platform.name }}*
+          name: ${{ runner.os }}-${{ matrix.platform.target }}
+          path: build/bin/*.${{ matrix.platform.archive }}
   
   release:
     needs: build
@@ -111,10 +111,21 @@ jobs:
         with:
           path: releases
       
+      - name: List downloaded artifacts
+        run: |
+          echo "=== Downloaded artifacts ==="
+          ls -laR releases/
+      
+      - name: Prepare release files
+        run: |
+          mkdir -p release-files
+          find releases -type f \( -name "*.zip" -o -name "*.tar.gz" \) -exec cp {} release-files/ \;
+          ls -la release-files/
+      
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: releases/**/*
+          files: release-files/*
           draft: false
           prerelease: false
           generate_release_notes: true
