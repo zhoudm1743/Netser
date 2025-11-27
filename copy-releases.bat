@@ -8,7 +8,7 @@ echo ==========================================
 echo.
 
 :: 设置版本号
-set VERSION=v1.0.0
+set VERSION=v1.0.1
 
 :: 清理并创建 releases 目录
 if exist "releases" (

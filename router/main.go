@@ -26,7 +26,7 @@ func Handle(ctx context.Context, data string) (string, error) {
 
 	switch request.Name {
 	case "get_version":
-		return dto.Success("1.0.0"), nil
+		return dto.Success("1.0.1"), nil
 
 	case "minimize":
 		runtime.WindowMinimise(ctx)
