@@ -56,7 +56,13 @@ jobs:
           npm install
       
       - name: Build application
-        run: wails build -platform ${{ matrix.platform.target }}
+        run: |
+          if [ "${{ runner.os }}" == "Linux" ]; then
+            wails build -platform ${{ matrix.platform.target }} -tags webkit2_41
+          else
+            wails build -platform ${{ matrix.platform.target }}
+          fi
+        shell: bash
       
       - name: Create archive (Windows/macOS)
         if: matrix.platform.archive == 'zip'
